@@ -1,7 +1,7 @@
 ---
 title: "covid 19"
-author: "Dr K"
-date: "5/2/2020"
+author: "Amy Estrada"
+date: "3/2/2021"
 output:
   html_document: default
   pdf_document: default
@@ -24,11 +24,13 @@ state of a patient must be died or alive - we adjust that as well
   
 # Question 1 - Is dying independent of sex
 
-
-
+$H_0$: Covid 19 deaths in Korea, January-May 2020 are unrelated to sex.
+$H_A$: There is a relation between deaths in Korea January-May 2020 and sex of the patiant.
 
 Table of patients:
 ```{r}
+kRdata$Sex = as.factor(kRdata$Sex)
+kRdata$result = as.factor(kRdata$result)
 
 # cross tabulation, patient state by gender
 
@@ -36,24 +38,43 @@ with(kRdata, table(Sex, result))
 
 ```
 
+This table shows how many males and females have survived COVID-19 and have passed away from COVID-19 in Korea.
+
 ## We create two bar charts - one based on frequency and the other on percent, use ggplot commands to do this
 
-`
+```{r}
+dd2 <- kRdata %>% group_by(result, Sex) %>% summarize(count=n()) %>% mutate(prcnt=count/sum(count))
 
-  
+basicC <- ggplot(dd2,aes(x=Sex,y=count,fill=result))
+basicC + geom_bar(stat="identity",position="dodge")
+#Now for percentage plot
 
+basicCC <- ggplot(dd2,aes(x=Sex,y=prcnt*100,fill=result)) 
+basicCC + geom_bar(stat="identity", position = "dodge")
+```
 
+The graph shows the results and counts of the males and females that survived and passed away from COVID-19 in Korea.
 
-
-
-  
 ## Numerical results
 
+```{r}
+table1 <- xtabs(~Sex + result, kRdata)
+rowPerc(table1)
+colPerc(table1)
+```
+
+The table above shows the percentage of the males and females that have been affected by COVID-19, also shows you the count of who has passed away and survived COVID-19 in Korea.
 
 ## Inferential results 
 
+```{r}
+chisq.test(table1)
+chisqtestGC(table1)
+fisher.test(table1)
+```
 
-
+This table demonstrates the observed counts, observed counts null, and the chi-square of the results for both hypothesis. The p-vale is to small to show that gender is a factor to COVID-19 deaths in Korea.
 
 ## Conclusions
 
+In conclusion, we reject the alternative hypothesis. We accept our hypothesis; sex is not related to COVID-19 deaths in Korea. The p-value is to small to indicate that the deaths are related to sex.
